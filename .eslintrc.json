@@ -24,6 +24,7 @@
         "prettier"
     ],
     "rules": {
+        "import/no-extraneous-dependencies": "off",
         "camelcase": "off",
         "prettier/prettier": "error",
         "react-hooks/rules-of-hooks": "error",
