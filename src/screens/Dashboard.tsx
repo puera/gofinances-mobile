@@ -1,10 +1,10 @@
-import React from 'react'
-import { Text, View } from 'react-native'
+import React from 'react';
+import { Text, View } from 'react-native';
 
 export default function Dashboard() {
-  return(
+  return (
     <View>
-     <Text>Dashboard</Text>
+      <Text>Dashboard</Text>
     </View>
-  )
+  );
 }
