@@ -4,12 +4,12 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { RectButton } from 'react-native-gesture-handler';
 
 interface IconProps {
-  type: 'up' | 'down';
+  type: 'positive' | 'negative';
 }
 
 interface ButtonProps {
   isActive: boolean;
-  type: 'up' | 'down';
+  type: 'positive' | 'negative';
 }
 
 export const Container = styled.View<ButtonProps>`
@@ -22,14 +22,14 @@ export const Container = styled.View<ButtonProps>`
 
   ${({ theme, isActive, type }) =>
     isActive &&
-    type === 'down' &&
+    type === 'negative' &&
     css`
       background-color: ${theme.colors.attention_light};
     `}
 
   ${({ theme, isActive, type }) =>
     isActive &&
-    type === 'up' &&
+    type === 'positive' &&
     css`
       background-color: ${theme.colors.success_light};
     `}
@@ -48,7 +48,7 @@ export const Icon = styled(Feather)<IconProps>`
   margin-right: 12px;
 
   color: ${({ theme, type }) =>
-    type === 'up' ? theme.colors.success : theme.colors.attention};
+    type === 'positive' ? theme.colors.success : theme.colors.attention};
 `;
 
 export const Title = styled.Text`
