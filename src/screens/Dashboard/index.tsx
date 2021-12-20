@@ -117,10 +117,6 @@ export function Dashboard() {
     setIsLoading(false);
   }
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       loadData();
