@@ -15,6 +15,7 @@ import theme from './src/global/styles/theme';
 
 import { AppRoutes } from './src/routes/app.routes';
 import { SignIn } from './src/screens/SignIn';
+import { AuthContextProvider } from './src/context/AuthContext';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -33,7 +34,9 @@ export default function App() {
           translucent
           backgroundColor={theme.colors.primary}
         />
-        <SignIn />
+        <AuthContextProvider>
+          <SignIn />
+        </AuthContextProvider>
       </NavigationContainer>
     </ThemeProvider>
   );
