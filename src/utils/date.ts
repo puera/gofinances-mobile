@@ -8,6 +8,8 @@ export function getLastTransaction(
     .filter((transaction) => transaction.type === type)
     .map((transaction) => new Date(transaction.date).getTime());
 
+  if (transactions.length === 0) return 0;
+
   const lastTransaction = new Date(Math.max(...transactions));
 
   return `${lastTransaction.getDate()} de ${lastTransaction.toLocaleDateString(

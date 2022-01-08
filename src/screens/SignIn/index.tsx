@@ -1,6 +1,7 @@
-import React from 'react';
-import { Alert } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, Alert, Platform } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useTheme } from 'styled-components';
 
 import AppleSVG from '../../assets/apple.svg';
 import GoogleSVG from '../../assets/google.svg';
@@ -19,23 +20,29 @@ import {
 } from './styles';
 
 export function SignIn() {
-  const { user, siginWithGoogle, signinWithApple } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { siginWithGoogle, signinWithApple } = useAuth();
+  const theme = useTheme();
 
   async function handleSiginWithGoogle() {
     try {
-      await siginWithGoogle();
+      setIsLoading(true);
+      return await siginWithGoogle();
     } catch (error) {
       console.log(error);
       Alert.alert('Não foi possível conectar a conta Google');
+      setIsLoading(false);
     }
   }
 
   async function handleSigninWithApple() {
     try {
-      await signinWithApple();
+      setIsLoading(true);
+      return await signinWithApple();
     } catch (error) {
       console.log(error);
       Alert.alert('Não foi possível conectar a conta Apple');
+      setIsLoading(false);
     }
   }
 
@@ -59,12 +66,22 @@ export function SignIn() {
             svg={GoogleSVG}
             onPress={handleSiginWithGoogle}
           />
-          <SignInSocialButton
-            title="Entrar com Apple"
-            svg={AppleSVG}
-            onPress={handleSigninWithApple}
-          />
+          {Platform.OS === 'ios' && (
+            <SignInSocialButton
+              title="Entrar com Apple"
+              svg={AppleSVG}
+              onPress={handleSigninWithApple}
+            />
+          )}
         </FooterWrapper>
+
+        {isLoading && (
+          <ActivityIndicator
+            color={theme.colors.shape}
+            size="small"
+            style={{ marginTop: 18 }}
+          />
+        )}
       </Footer>
     </Container>
   );

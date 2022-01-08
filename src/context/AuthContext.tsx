@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as AuthSession from 'expo-auth-session';
 import * as AppleSession from 'expo-apple-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 const { CLIENT_ID } = process.env;
 const { REDIRECT_URI } = process.env;
@@ -27,12 +28,14 @@ interface IAuthContextData {
   user: User;
   siginWithGoogle: () => Promise<void>;
   signinWithApple: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext({} as IAuthContextData);
 
 export function AuthContextProvider({ children }: Props) {
   const [user, setUser] = useState<User>({} as User);
+  const [isLoading, setIsLoading] = useState(true);
 
   async function siginWithGoogle() {
     try {
@@ -83,6 +86,7 @@ export function AuthContextProvider({ children }: Props) {
           id: credential.user,
           email: credential.email,
           name: credential.fullName.givenName,
+          avatar: `https://ui-avatars.com/api/?name=${credential.fullName.givenName}&length=1`,
         };
 
         setUser(userLogged);
@@ -95,8 +99,27 @@ export function AuthContextProvider({ children }: Props) {
       throw new Error(error);
     }
   }
+
+  async function logout() {
+    await AsyncStorage.removeItem('@gofinances:user');
+    setUser({} as User);
+  }
+
+  useEffect(() => {
+    async function loadStorage() {
+      const response = await AsyncStorage.getItem('@gofinances:user');
+
+      const userLogged = response ? JSON.parse(response) : {};
+      setUser(userLogged);
+      setIsLoading(false);
+    }
+    loadStorage();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, siginWithGoogle, signinWithApple }}>
+    <AuthContext.Provider
+      value={{ user, siginWithGoogle, signinWithApple, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

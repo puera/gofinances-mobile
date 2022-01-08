@@ -23,6 +23,7 @@ import {
   Fields,
   TransactionTypes,
 } from './styles';
+import { useAuth } from '../../context/AuthContext';
 
 interface FormData {
   name: string;
@@ -37,8 +38,6 @@ const schema = Yup.object().shape({
     .required('O valor é obrigatório!'),
 });
 
-const dataKey = '@gofinances:transactions';
-
 export function Register() {
   const [category, setCategory] = useState({
     key: 'category',
@@ -46,6 +45,8 @@ export function Register() {
   });
   const [transactionType, setTransactionType] = useState('');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+
+  const { user } = useAuth();
 
   const navigation = useNavigation();
 
@@ -85,6 +86,7 @@ export function Register() {
     };
 
     try {
+      const dataKey = `@gofinances:transactions_user:${user.id}`;
       const data = await AsyncStorage.getItem(dataKey);
       const currentData = data ? JSON.parse(data) : [];
 

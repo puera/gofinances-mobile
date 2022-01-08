@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Alert } from 'react-native';
 import { useTheme } from 'styled-components';
 import { HighLightCard } from '../../components/HighlightCard';
 import {
@@ -27,6 +27,7 @@ import {
   LoadContainer,
 } from './styles';
 import { getLastTransaction } from '../../utils/date';
+import { useAuth } from '../../context/AuthContext';
 
 export interface DataListProps extends TransactionCardProps {
   id: string;
@@ -43,14 +44,16 @@ interface HighlightData {
 
 export function Dashboard() {
   const theme = useTheme();
+  const { user, logout } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [transacations, setTransactions] = useState<DataListProps[]>([]);
   const [highlightData, setHighlightData] = useState<HighlightData>(
     {} as HighlightData,
   );
 
-  async function loadData() {
-    const response = await AsyncStorage.getItem('@gofinances:transactions');
+  const loadData = useCallback(async () => {
+    const dataKey = `@gofinances:transactions_user:${user.id}`;
+    const response = await AsyncStorage.getItem(dataKey);
     const parsedData = response ? JSON.parse(response) : [];
 
     let entriesTotal = 0;
@@ -93,7 +96,11 @@ export function Dashboard() {
       parsedData,
       'negative',
     );
-    const totalInterval = `01 a ${lastTransactionsExpensives}`;
+    const totalInterval = `${
+      lastTransactionsExpensives === 0
+        ? 'Não há transações'
+        : `01 a ${lastTransactionsExpensives}`
+    }`;
 
     setHighlightData({
       entriesTotal: Number(entriesTotal).toLocaleString('pt-BR', {
@@ -108,19 +115,37 @@ export function Dashboard() {
         style: 'currency',
         currency: 'BRL',
       }),
-      lastTransactionsEntries: `Última entrada dia ${lastTransactionsEntries}`,
-      lastTransactionsExpensives: `Última saida dia ${lastTransactionsExpensives}`,
+      lastTransactionsEntries:
+        lastTransactionsEntries === 0
+          ? 'Não há transações'
+          : `Última entrada dia ${lastTransactionsEntries}`,
+      lastTransactionsExpensives:
+        lastTransactionsExpensives === 0
+          ? 'Não há transações'
+          : `Última saida dia ${lastTransactionsExpensives}`,
       totalInterval,
     });
     setTransactions(transactionsFormatted);
 
     setIsLoading(false);
+  }, [user.id]);
+
+  async function logoutApp() {
+    Alert.alert('Logout', 'Deseja realmente sair?', [
+      {
+        text: 'Sim',
+        onPress: logout,
+      },
+      {
+        text: 'Não',
+      },
+    ]);
   }
 
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, []),
+    }, [loadData]),
   );
   return (
     <Container>
@@ -135,15 +160,15 @@ export function Dashboard() {
               <UserInfo>
                 <Photo
                   source={{
-                    uri: 'https://avatars.githubusercontent.com/u/1524415?v=4',
+                    uri: user.avatar,
                   }}
                 />
                 <User>
                   <UserGreeting>Olá, </UserGreeting>
-                  <UserName>Renann</UserName>
+                  <UserName>{user.name}</UserName>
                 </User>
               </UserInfo>
-              <LogoutButton onPress={() => {}}>
+              <LogoutButton onPress={logoutApp}>
                 <Icon name="power" />
               </LogoutButton>
             </UserWrapper>

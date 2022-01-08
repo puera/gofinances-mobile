@@ -24,6 +24,7 @@ import {
 import { DataListProps } from '../Dashboard';
 import { categories } from '../../utils/categories';
 import { LoadContainer } from '../Dashboard/styles';
+import { useAuth } from '../../context/AuthContext';
 
 interface TotalByCategoryProps {
   name: string;
@@ -43,6 +44,7 @@ export function Resume() {
 
   const theme = useTheme();
 
+  const { user } = useAuth();
   const paddingBar = useBottomTabBarHeight();
 
   function handleDateChange(action: 'next' | 'back') {
@@ -53,9 +55,10 @@ export function Resume() {
     }
   }
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
-    const response = await AsyncStorage.getItem('@gofinances:transactions');
+    const dataKey = `@gofinances:transactions_user:${user.id}`;
+    const response = await AsyncStorage.getItem(dataKey);
     const responseFormatted: DataListProps[] = response
       ? JSON.parse(response)
       : [];
@@ -101,12 +104,12 @@ export function Resume() {
     });
     setTotalByCategories(totalcategories);
     setIsLoading(false);
-  }
+  }, [user.id, selectedDate]);
 
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [selectedDate]),
+    }, [loadData]),
   );
 
   return (
